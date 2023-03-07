@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fuzzywuzzy = "*"
+seaborn = "*"
+pandas = "*"
+ipykernel = "*"
+numpy = "*"
+scikit-learn = "*"
+scipy = "*"
+black = "*"
+matplotlib = "*"
+levenshtein = "*"
+plotly = "*"
+plotly-express = "*"
+nbformat = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
