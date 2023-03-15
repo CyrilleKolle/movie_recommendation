@@ -17,6 +17,9 @@ levenshtein = "*"
 plotly = "*"
 plotly-express = "*"
 nbformat = "*"
+flask = "*"
+flask-cors = "*"
+regex = "*"
 
 [dev-packages]
 
