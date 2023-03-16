@@ -1,7 +1,5 @@
 # Labb for movies recommendations
 
-## 1.3a How my system works
-
 - My goal in this exercise is to recommend movies to a user based on inputed movie for toy story.
 
 - First i used fuzzywuzzy to return a close match to the movie inputed by the user. This reduces the potential for 
@@ -20,10 +18,12 @@ errors since you would need a perfect match for movie you are handling in the da
 for my recommender algorithm 
 
 #### How KNN works here
-- From the csr matrix, each row is a vector. Each of these vectors is a movie since I had my movieIds as rows in the pivot dataframe. These vectors are found in this high 
-dimensional matrix space. The KNN recommendation here works by checking the angle between my inputed movie and returning the K nearest other vectors. The other vector vectors in this matrix with smaller angles compared to my movie will be returned 
+- Cosine similarity measures the similarity between two vectors or data points in multidimensional space. It is measured by the cosine of the angle between two vectors or data points. It determines whether these two vectors are pointing in the same direction. It is often used to measure similarity in text analysis.
 
-<img src="../assets/cos.webp" alt="description of the image" width="300" height="200">
+- When KNN makes inference about a movie, KNN will calculate the “distance” between the target movie and every other movie in its database, then it ranks its distances and returns the top K nearest neighbor movies as the most similar movie recommendations.
 
-A good example is the image above. Joao Felix and Messi are similar, but Jaoa has fewer years of play and doesnt have as many ratings but is  very similar to messi as opposed
-to Cristiano who is quite different but simailar in amout of ratings as Messi. A euclidean distance would have picked Messi and Ronaldo where a cosine would pick Joao as similar to Messi.
+## Backend implementation
+
+The Recommendation functionality is implemented using a flask backend
+
+Check out the *app.py* file
