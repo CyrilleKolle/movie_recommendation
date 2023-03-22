@@ -20,6 +20,8 @@ nbformat = "*"
 flask = "*"
 flask-cors = "*"
 regex = "*"
+beautifulsoup4 = "*"
+requests = "*"
 
 [dev-packages]
 

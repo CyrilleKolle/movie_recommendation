@@ -7,6 +7,7 @@ from fuzzywuzzy import process
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly_express as px
+import imdb
 
 app = Flask(__name__)
 CORS(app)
@@ -21,13 +22,17 @@ movies = movies.dropna(subset=['year'], how='any')
 movies['year'] = movies['year'].astype(int)
 movies.loc[:, 'title_no_year'] = movies['title'].apply(lambda x: x.split("(")[0].rstrip())
 
+# new_ratings = ratings[ratings['movieId'].isin(movies['movieId'])]
+# movieIds = pd.Categorical(new_ratings['movieId'], categories=movies['movieId'])
+# userIds = pd.Categorical(new_ratings['userId'])
+
 movieIds = pd.Categorical(ratings['movieId'])
 userIds = pd.Categorical(ratings['userId'])
 
 # Create the csr matrix
 matrix = csr_matrix((ratings['rating'], (movieIds.codes, userIds.codes)))
 
-model_KNN = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=21)
+model_KNN = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=22)
 model_KNN.fit(matrix)
 
 
@@ -39,9 +44,12 @@ def recommender_system(movie_name, dataframe, model, number_recommendations):
 
     
     distances, indices = model.kneighbors(dataframe[movie_idx], n_neighbors=number_recommendations)
-    indix = indices.flatten()[1:]
+
+    indice = indices[0]
+    selected = indice[indice != movie_idx]
+    selected_movies = movies.iloc[selected]
     
-    return movies.loc[indix]
+    return selected_movies
 
 def searched_movie(movie_name):
     movie = process.extractOne(movie_name, movies['title'])[0]
@@ -55,7 +63,7 @@ def dictionary():
     word = request.args.get('word')
     # word_movie = movies[movies['title_no_year'] == word]
     
-    recommendations = recommender_system(word, matrix, model_KNN, 21)
+    recommendations = recommender_system(word, matrix, model_KNN, 22)
     searched = searched_movie(word)
     
     recommendations_dict = recommendations.to_dict(orient='records')
