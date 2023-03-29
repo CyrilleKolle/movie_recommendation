@@ -16,33 +16,30 @@ CORS(app)
 
 movies, ratings = pd.read_csv('./data/movies.csv'), pd.read_csv('./data/ratings.csv')
 movies['year']  = movies['title'].str.extract(r'\((\d{4})\)')
-genres_df = movies['genres'].str.get_dummies('|')
-movies['most_common_genre'] = genres_df.apply(lambda x: x.idxmax(), axis=1)
-movies = movies.dropna(subset=['year'], how='any')
-movies['year'] = movies['year'].astype(int)
 movies.loc[:, 'title_no_year'] = movies['title'].apply(lambda x: x.split("(")[0].rstrip())
+movies2 = movies.copy()
+genres_df = movies2['genres'].str.get_dummies('|')
+movies2['most_common_genre'] = genres_df.apply(lambda x: x.idxmax(), axis=1)
+movies2 = movies2.dropna(subset=['year'], how='any')
+movies2['year'] = movies2['year'].astype(int)
 
-# new_ratings = ratings[ratings['movieId'].isin(movies['movieId'])]
-# movieIds = pd.Categorical(new_ratings['movieId'], categories=movies['movieId'])
-# userIds = pd.Categorical(new_ratings['userId'])
+new_ratings = ratings[ratings['movieId'].isin(movies['movieId'])]
+movieIds = pd.Categorical(new_ratings['movieId'], categories=movies['movieId'])
+userIds = pd.Categorical(new_ratings['userId'])
 
-movieIds = pd.Categorical(ratings['movieId'])
-userIds = pd.Categorical(ratings['userId'])
+# movieIds = pd.Categorical(ratings['movieId'])
+# userIds = pd.Categorical(ratings['userId'])
 
 # Create the csr matrix
 matrix = csr_matrix((ratings['rating'], (movieIds.codes, userIds.codes)))
 
-model_KNN = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=22)
+model_KNN = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=13)
 model_KNN.fit(matrix)
 
 
 def recommender_system(movie_name, dataframe, model, number_recommendations):
     movie_id = process.extractOne(movie_name, movies['title'])[1]
     movie_idx = process.extractOne(movie_name, movies['title'])[2]
-    print('Movie Selected: ', movies['title'][movie_idx], 'Id: ',movie_id)
-    print('Searching for recommendation....')
-
-    
     distances, indices = model.kneighbors(dataframe[movie_idx], n_neighbors=number_recommendations)
 
     indice = indices[0]
@@ -53,17 +50,15 @@ def recommender_system(movie_name, dataframe, model, number_recommendations):
 
 def searched_movie(movie_name):
     movie = process.extractOne(movie_name, movies['title'])[0]
-    movie_df = movies[movies['title'] == movie]
+    movie_df = movies2[movies2['title'] == movie]
     return movie_df
-
-
 
 @app.route('/api/dictionary')
 def dictionary():
     word = request.args.get('word')
     # word_movie = movies[movies['title_no_year'] == word]
     
-    recommendations = recommender_system(word, matrix, model_KNN, 22)
+    recommendations = recommender_system(word, matrix, model_KNN, 13)
     searched = searched_movie(word)
     
     recommendations_dict = recommendations.to_dict(orient='records')
@@ -73,4 +68,4 @@ def dictionary():
     return jsonify([recommendations_dict, searched_dict])
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5100)
+    app.run(debug=True, port=5100, host='0.0.0.0')
